@@ -123,6 +123,10 @@ Podfile.lock
 
 # Bazel files
 bazel-*
+!bazel-bin/
+!bazel-bin/examples/
+!bazel-bin/examples/protos/
+!bazel-bin/examples/protos/**
 bazel_format_virtual_environment/
 tools/bazel-*
 .bazel_rbe
