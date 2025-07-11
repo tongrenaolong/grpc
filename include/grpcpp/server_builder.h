@@ -332,7 +332,7 @@ class ServerBuilder {
   /// Experimental, to be deprecated
   struct Port {
     std::string addr;
-    std::shared_ptr<ServerCredentials> creds;
+    std::shared_ptr<ServerCredentials> creds;// 验证凭据
     int* selected_port;
   };
 

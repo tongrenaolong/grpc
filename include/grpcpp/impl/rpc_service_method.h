@@ -90,8 +90,8 @@ class RpcServiceMethod : public RpcMethod {
                    MethodHandler* handler)
       : RpcMethod(name, type),
         server_tag_(nullptr),
-        api_type_(ApiType::SYNC),
-        handler_(handler) {}
+        api_type_(ApiType::SYNC),// 当前方法的执行方式
+        handler_(handler) {} // 没有 handler 表示异步调用
 
   enum class ApiType {
     SYNC,

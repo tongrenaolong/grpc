@@ -224,8 +224,8 @@ class Service {
  private:
   friend class Server;
   friend class ServerInterface;
-  ServerInterface* server_;
-  std::vector<std::unique_ptr<internal::RpcServiceMethod>> methods_;
+  ServerInterface* server_; // 服务所属的服务器
+  std::vector<std::unique_ptr<internal::RpcServiceMethod>> methods_;// 服务的所有方法
 };
 
 }  // namespace grpc

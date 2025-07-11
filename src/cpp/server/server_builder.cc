@@ -81,7 +81,7 @@ class PassiveListenerOwner final
 
 static std::vector<std::unique_ptr<ServerBuilderPlugin> (*)()>*
     g_plugin_factory_list;
-static gpr_once once_init_plugin_list = GPR_ONCE_INIT;
+static gpr_once once_init_plugin_list = GPR_ONCE_INIT;// int32_t 0
 
 static void do_plugin_list_init(void) {
   g_plugin_factory_list =
@@ -91,11 +91,11 @@ static void do_plugin_list_init(void) {
 ServerBuilder::ServerBuilder()
     : max_receive_message_size_(INT_MIN),
       max_send_message_size_(INT_MIN),
-      sync_server_settings_(SyncServerSettings()),
+      sync_server_settings_(SyncServerSettings()),// 同步服务器完成队列监听设置
       resource_quota_(nullptr) {
   gpr_once_init(&once_init_plugin_list, do_plugin_list_init);
   for (const auto& value : *g_plugin_factory_list) {
-    plugins_.emplace_back(value());
+    plugins_.emplace_back(value());// 将创建的 grpc::ServerBuilderPlugin 对象添加进 plugins_
   }
 
   // all compression algorithms enabled by default.
@@ -325,6 +325,7 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
       break;
     }
   }
+  printf("service_:has_sync_methods: %d\n", has_sync_methods);
 
   if (!has_sync_methods) {
     for (const auto& value : plugins_) {
@@ -334,6 +335,7 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
       }
     }
   }
+  printf("plugins_:has_sync_methods: %d\n", has_sync_methods);
 
   // If this is a Sync server, i.e a server expositing sync API, then the server
   // needs to create some completion queues to listen for incoming requests.
@@ -354,6 +356,7 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
       break;
     }
   }
+  printf("cqs_:has_frequently_polled_cqs: %d\n", has_frequently_polled_cqs);
 
   // == Determine if the server has any callback methods ==
   bool has_callback_methods = false;
@@ -364,10 +367,13 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
       break;
     }
   }
+  printf("services_:has_callback_methods: %d\n", has_callback_methods);
+  printf("services_:callback_generic_service_: %p\n", callback_generic_service_);
 
   if (callback_generic_service_ != nullptr) {
     has_frequently_polled_cqs = true;
   }
+  printf("services_:has_frequently_polled_cqs: %d\n", has_frequently_polled_cqs);
 
   const bool is_hybrid_server = has_sync_methods && has_frequently_polled_cqs;
 
@@ -375,6 +381,7 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
     grpc_cq_polling_type polling_type =
         is_hybrid_server ? GRPC_CQ_NON_POLLING : GRPC_CQ_DEFAULT_POLLING;
 
+  printf("sync_server_settings_.num_cqs: %d\n", sync_server_settings_.num_cqs);
     // Create completion queues to listen to incoming rpc requests
     for (int i = 0; i < sync_server_settings_.num_cqs; i++) {
       sync_server_cqs->emplace_back(
@@ -403,6 +410,7 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
       std::move(acceptors_), server_config_fetcher_, resource_quota_,
       std::move(interceptor_creators_), server_metric_recorder_));
 
+  // 在 Server 构造函数中根据 channel_args 创建
   ServerInitializer* initializer = server->initializer();
 
   // Register all the completion queues with the server. i.e
@@ -509,6 +517,7 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
 
 void ServerBuilder::InternalAddPluginFactory(
     std::unique_ptr<ServerBuilderPlugin> (*CreatePlugin)()) {
+  // 保证 g_plugin_factory_list 已经初始化 
   gpr_once_init(&once_init_plugin_list, do_plugin_list_init);
   (*g_plugin_factory_list).push_back(CreatePlugin);
 }

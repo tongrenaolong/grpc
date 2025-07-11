@@ -64,16 +64,18 @@ class GreeterServiceImpl final : public Greeter::Service {
 
 void RunServer(uint16_t port) {
   std::string server_address = absl::StrFormat("0.0.0.0:%d", port);
-  GreeterServiceImpl service;
+  GreeterServiceImpl service;// 初始化所属服务器和服务器的调用方法
 
-  grpc::EnableDefaultHealthCheckService(true);
+  grpc::EnableDefaultHealthCheckService(true);// 默认为不开启健康检测
+  // 将能创建 grpc::ServerBuilderPlugin 对象的函数添加进 g_plugin_factory_list
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+  // 将 g_plugin_factory_list 中的函数创建的 grpc::ServerBuilderPlugin 对象添加进 builder
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
-  builder.RegisterService(&service);
+  builder.RegisterService(&service);// 将当前的 service 加入 builder 管理
   // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;

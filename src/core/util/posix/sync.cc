@@ -150,7 +150,8 @@ void gpr_cv_broadcast(gpr_cv* cv) {
 //----------------------------------------
 
 void gpr_once_init(gpr_once* once, void (*init_function)(void)) {
-  CHECK_EQ(pthread_once(once, init_function), 0);
+  // 多次执行都会返回0 表示成功，其他都是失败
+  CHECK_EQ(pthread_once(once, init_function), 0);// 保证在整个进程中只调用一次
 }
 
 #endif  // defined(GPR_POSIX_SYNC) && !defined(GPR_ABSEIL_SYNC) &&
