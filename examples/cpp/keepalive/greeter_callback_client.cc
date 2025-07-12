@@ -110,14 +110,21 @@ int main(int argc, char** argv) {
   args.SetInt(GRPC_ARG_KEEPALIVE_TIME_MS, 20 * 1000 /*20 sec*/);
   args.SetInt(GRPC_ARG_KEEPALIVE_TIMEOUT_MS, 10 * 1000 /*10 sec*/);
   args.SetInt(GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_CALLS, 1);
-  for (auto i = 0; i < 10; ++i) {
-    GreeterClient greeter(grpc::CreateCustomChannel(
-        target_str, grpc::InsecureChannelCredentials(), args));
-    std::string user("world");
-    std::string reply = greeter.SayHello(user);
-    std::cout << "Greeter received: " << reply << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(10));
-  }
+  // for (auto i = 0; i < 10; ++i) {
+  //   GreeterClient greeter(grpc::CreateCustomChannel(
+  //       target_str, grpc::InsecureChannelCredentials(), args));
+  //   std::string user("world");
+  //   std::string reply = greeter.SayHello(user);
+  //   std::cout << "Greeter received: " << reply << std::endl;
+  //   std::this_thread::sleep_for(std::chrono::seconds(10));
+  // }
+
+  GreeterClient greeter(grpc::CreateCustomChannel(
+      target_str, grpc::InsecureChannelCredentials(), args));
+  std::string user("world");
+  std::string reply = greeter.SayHello(user);
+  std::cout << "Greeter received: " << reply << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(30));
 
   return 0;
 }
